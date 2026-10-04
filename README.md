@@ -20,6 +20,28 @@ State is pushed, not polled by HA. The agent reads each light about once a secon
 locally and pushes only changes, so presses of the light's own buttons and USB
 unplug/replug show up in HA within about a second.
 
+## Supported devices
+
+Device support comes from the [`litra`](https://github.com/timrogers/litra-rs) crate.
+Only the Litra Glow has been tested with this project.
+
+| Model | USB product ID | Status |
+| --- | --- | --- |
+| Litra Glow | `0xc900` | **Tested** — on/off, brightness, color temperature, push updates, hotplug |
+| Litra Beam | `0xc901`, `0xb901` | Expected to work, untested. Same protocol as the Glow; 30–400 lm range is read from the device |
+| Litra Beam LX | `0xc903` | Front light expected to work, untested. The colored back panel isn't exposed yet |
+
+Reports from Beam and Beam LX owners are welcome. Open an issue with the result and the
+agent log (`~/Library/Logs/litra-agent.log`).
+
+Other limits:
+
+- **macOS only.** The `litra` crate is cross-platform, but the agent's install script,
+  LaunchAgent, and firewall handling are macOS-specific.
+- **Lights without a serial number** are identified by their USB device path, so moving one
+  to a different port makes Home Assistant see a new light. Lights that report a serial
+  (the Glow does) keep their identity across ports.
+
 ## Security model
 
 | Control | Detail |

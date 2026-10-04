@@ -79,9 +79,9 @@ All routes require `Authorization: Bearer <token>`.
   that is off stores those values without lighting up.
 - If the agent's HID worker stops responding for 30 s, the agent exits and launchd
   restarts it. While it's down, HA shows the lights as unavailable.
-- If another program also talks to the light over HID at the same moment (for example
-  the `litra` CLI), the two can occasionally read each other's responses. The agent
-  corrects itself on the next poll.
+- Other programs can talk to the light at the same time (for example the `litra` CLI).
+  On macOS every open HID handle receives every response, so the agent only accepts a
+  response that echoes its own request's header, and discards anything else.
 
 ## Development
 

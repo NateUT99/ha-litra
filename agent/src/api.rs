@@ -91,28 +91,29 @@ async fn events(State(state): State<Arc<AppState>>, upgrade: WebSocketUpgrade) -
 /// or misses a frame can never drift.
 async fn stream_events(mut socket: WebSocket, mut snapshots: watch::Receiver<Snapshot>) {
     debug!("event stream opened");
-    loop {
-        let frame = {
-            let snapshot = snapshots.borrow_and_update().clone();
-            json!({ "type": "devices", "devices": snapshot.as_ref() }).to_string()
+    while send_snapshot(&mut socket, &mut snapshots).await {
+        // Wait for a real change. Incoming pings are answered by axum and must
+        // not trigger a resend; only close or error ends the stream.
+        let changed = loop {
+            tokio::select! {
+                changed = snapshots.changed() => break changed.is_ok(),
+                incoming = socket.recv() => match incoming {
+                    Some(Ok(Message::Close(_)) | Err(_)) | None => break false,
+                    Some(Ok(_)) => {}
+                },
+            }
         };
-        if socket.send(Message::Text(frame.into())).await.is_err() {
+        if !changed {
             break;
-        }
-        tokio::select! {
-            changed = snapshots.changed() => {
-                if changed.is_err() {
-                    break;
-                }
-            }
-            incoming = socket.recv() => {
-                // Clients don't send anything; any close or error ends the stream.
-                match incoming {
-                    Some(Ok(Message::Close(_))) | Some(Err(_)) | None => break,
-                    _ => {}
-                }
-            }
         }
     }
     debug!("event stream closed");
+}
+
+async fn send_snapshot(socket: &mut WebSocket, snapshots: &mut watch::Receiver<Snapshot>) -> bool {
+    let frame = {
+        let snapshot = snapshots.borrow_and_update().clone();
+        json!({ "type": "devices", "devices": snapshot.as_ref() }).to_string()
+    };
+    socket.send(Message::Text(frame.into())).await.is_ok()
 }

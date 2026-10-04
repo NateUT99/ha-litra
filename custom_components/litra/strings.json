@@ -47,5 +47,12 @@
       "reconfigure_successful": "Address updated.",
       "wrong_agent": "A different litra-agent answered at that address."
     }
+  },
+  "entity": {
+    "binary_sensor": {
+      "agent_connected": {
+        "name": "Agent connected"
+      }
+    }
   }
 }

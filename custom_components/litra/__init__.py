@@ -30,7 +30,7 @@ from .const import API_VERSION, CONF_FINGERPRINT, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.LIGHT]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.LIGHT]
 INITIAL_BACKOFF = 1.0
 MAX_BACKOFF = 60.0
 

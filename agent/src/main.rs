@@ -54,6 +54,8 @@ async fn main() -> std::process::ExitCode {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
         .with_target(false)
+        // stderr, so launchd's StandardErrorPath captures it; stdout is for `pair`.
+        .with_writer(std::io::stderr)
         .init();
 
     match run(Cli::parse().command).await {

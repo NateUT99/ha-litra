@@ -143,12 +143,49 @@ actions:
 
 Ideas for extending it:
 
-- **Notify instead of failing silently.** Check the agent's *Connected* sensor and the
-  light's availability before applying the preset. *Connected* off means the agent is
-  unreachable; the light `unavailable` while *Connected* is on means the Litra is unplugged.
+- **Skip the preset when the light can't respond.** Check the agent's *Connected* sensor
+  and the light's availability before applying the preset. *Connected* off means the agent
+  is unreachable; the light `unavailable` while *Connected* is on means the Litra is
+  unplugged.
 - **Tolerate longer pauses.** If you step away with the camera off but the call still
   connected, wait for the Mac's *Audio Input In Use* sensor to go off before turning the
   light off, rather than lengthening the `for:` delay.
+
+## Example: notify when the agent goes offline
+
+The agent device has a *Connected* sensor. It turns off when Home Assistant loses the
+agent's event stream: the agent stopped, the computer is asleep or off, or the firewall
+is blocking it after an upgrade. This automation sends a notification to the Mac through
+the Companion App after two minutes offline, which rides out a restart. Replace the two
+entity IDs with your own. If the computer itself might be asleep or off, target your
+phone instead, since the Mac won't see the notification until it wakes.
+
+<!-- example-agent-offline -->
+```yaml
+alias: "Desk: Litra Agent Offline Alert"
+description: >-
+  Notifies the Mac when the Litra agent has been unreachable for two minutes,
+  so the key light isn't silently unavailable.
+mode: single
+triggers:
+  - alias: Agent disconnected for two minutes
+    trigger: state
+    entity_id: binary_sensor.litra_agent_connected
+    from: "on"
+    to: "off"
+    # Long enough to ride out an agent restart or a brief network blip.
+    for:
+      minutes: 2
+conditions: []
+actions:
+  - alias: Notify the Mac
+    action: notify.mobile_app_my_mac
+    data:
+      title: Litra agent offline
+      message: >-
+        Home Assistant can't reach litra-agent. Check that it's running with
+        `launchctl print gui/$(id -u)/com.github.nateut99.litra-agent`.
+```
 
 ## Acknowledgments and licensing
 
@@ -173,5 +210,5 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements_test.txt ruff
 cd agent && cargo clippy --release && cargo build --release
 ```
 
-`tests/test_readme_example.py` loads the example automation above into Home Assistant and
-runs it, so the README can't drift into invalid YAML.
+`tests/test_readme_example.py` loads both example automations above into Home Assistant
+and runs them, so the README can't drift into invalid YAML.

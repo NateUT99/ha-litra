@@ -83,6 +83,88 @@ All routes require `Authorization: Bearer <token>`.
   On macOS every open HID handle receives every response, so the agent only accepts a
   response that echoes its own request's header, and discards anything else.
 
+## Example: key light follows your Mac's camera
+
+The [Home Assistant Companion App for macOS](https://companion.home-assistant.io/) reports
+`binary_sensor.<device>_camera_in_use`. This automation turns the key light on at a
+video-call preset when the camera starts, and off once the camera has been off for 10
+seconds. Replace the two entity IDs with your own.
+
+<!-- example-automation -->
+```yaml
+alias: "Desk: Key Light Follows Camera"
+description: >-
+  Turns the desk key light on at a video-call preset while the Mac's camera is
+  in use, and off once the camera has been off for 10 seconds.
+mode: restart
+triggers:
+  - alias: Camera turned on
+    trigger: state
+    entity_id: binary_sensor.my_mac_camera_in_use
+    to: "on"
+    id: camera_on
+  - alias: Camera off for 10 seconds
+    trigger: state
+    entity_id: binary_sensor.my_mac_camera_in_use
+    to: "off"
+    # Rides out brief camera drops (an app switching cameras, a quick reconnect)
+    # so the light doesn't flicker mid-call.
+    for:
+      seconds: 10
+    id: camera_off
+conditions: []
+actions:
+  - alias: Follow the camera
+    choose:
+      - alias: Camera on
+        conditions:
+          - alias: Triggered by the camera turning on
+            condition: trigger
+            id: camera_on
+        sequence:
+          - alias: Key light to video-call preset
+            action: light.turn_on
+            target:
+              entity_id: light.desk_key_light
+            data:
+              brightness_pct: 45
+              color_temp_kelvin: 4500
+      - alias: Camera off
+        conditions:
+          - alias: Triggered by the camera turning off
+            condition: trigger
+            id: camera_off
+        sequence:
+          - alias: Key light off
+            action: light.turn_off
+            target:
+              entity_id: light.desk_key_light
+```
+
+Ideas for extending it:
+
+- **Notify instead of failing silently.** Check the agent's *Connected* sensor and the
+  light's availability before applying the preset. *Connected* off means the agent is
+  unreachable; the light `unavailable` while *Connected* is on means the Litra is unplugged.
+- **Tolerate longer pauses.** If you step away with the camera off but the call still
+  connected, wait for the Mac's *Audio Input In Use* sensor to go off before turning the
+  light off, rather than lengthening the `for:` delay.
+
+## Acknowledgments and licensing
+
+The agent talks to the hardware through [`litra`](https://github.com/timrogers/litra-rs)
+by Tim Rogers (MIT), the library behind the `litra` CLI. It uses the library's device discovery
+and its set commands. The agent's own query path reuses the HID++ request layout that
+litra-rs documents, adding response matching and timeouts so it works alongside other
+processes (see Behavior notes). Thanks to that project for the protocol work that made this
+possible.
+
+This repository is MIT-licensed (see `LICENSE`). It contains only its own source.
+`litra` and every other Rust dependency are downloaded by Cargo at build time under their own
+licenses, all permissive (MIT, Apache-2.0, ISC, BSD). Anyone redistributing a built
+`litra-agent` binary must include those dependencies' license notices with it;
+[`cargo-about`](https://github.com/EmbarkStudios/cargo-about) can generate them.
+
 ## Development
 
 ```bash
@@ -90,3 +172,6 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements_test.txt ruff
 .venv/bin/pytest -q && .venv/bin/ruff check custom_components tests
 cd agent && cargo clippy --release && cargo build --release
 ```
+
+`tests/test_readme_example.py` loads the example automation above into Home Assistant and
+runs it, so the README can't drift into invalid YAML.

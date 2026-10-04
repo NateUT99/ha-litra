@@ -26,7 +26,7 @@ from homeassistant.helpers import device_registry as dr
 from .conftest import GLOW, FakeClient
 
 ENTITY = "light.litra_glow"
-AGENT_CONNECTED = "binary_sensor.litra_agent_mac_mini_connected"
+AGENT_CONNECTIVITY = "binary_sensor.litra_agent_mac_mini_connectivity"
 
 
 async def _setup(hass: HomeAssistant, entry: MockConfigEntry) -> None:
@@ -141,7 +141,7 @@ async def test_unplug_and_hotplug(
     await hass.async_block_till_done()
     assert hass.states.get(ENTITY).state == STATE_UNAVAILABLE
     # The agent is still up; only the light is gone.
-    assert hass.states.get(AGENT_CONNECTED).state == STATE_ON
+    assert hass.states.get(AGENT_CONNECTIVITY).state == STATE_ON
 
     beam = replace(GLOW, id="BEAM1", serial="BEAM1", model="Litra Beam")
     fake_client.push([GLOW, beam])
@@ -155,12 +155,12 @@ async def test_stream_drop_marks_unavailable(
 ) -> None:
     """Losing the agent makes entities unavailable until it reconnects."""
     await _setup(hass, config_entry)
-    assert hass.states.get(AGENT_CONNECTED).state == STATE_ON
+    assert hass.states.get(AGENT_CONNECTIVITY).state == STATE_ON
     fake_client.listen_error = LitraConnectionError("gone")
     fake_client.close_stream()
     await hass.async_block_till_done()
     assert hass.states.get(ENTITY).state == STATE_UNAVAILABLE
-    assert hass.states.get(AGENT_CONNECTED).state == STATE_OFF
+    assert hass.states.get(AGENT_CONNECTIVITY).state == STATE_OFF
 
 
 async def test_stream_auth_failure_starts_reauth(

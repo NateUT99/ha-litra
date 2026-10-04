@@ -68,7 +68,7 @@ async def test_readme_example(hass: HomeAssistant) -> None:
 
 async def test_readme_agent_offline_example(hass: HomeAssistant) -> None:
     """Offline for 2 minutes notifies once; a shorter outage doesn't."""
-    sensor = "binary_sensor.litra_agent_connected"
+    sensor = "binary_sensor.litra_agent_connectivity"
     hass.states.async_set(sensor, "on")
     notify = async_mock_service(hass, "notify", "mobile_app_my_mac")
     assert await async_setup_component(

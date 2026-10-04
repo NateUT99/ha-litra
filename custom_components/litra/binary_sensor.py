@@ -21,10 +21,10 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Add the agent connectivity sensor."""
-    async_add_entities([AgentConnectedSensor(entry.runtime_data)])
+    async_add_entities([AgentConnectivitySensor(entry.runtime_data)])
 
 
-class AgentConnectedSensor(BinarySensorEntity):
+class AgentConnectivitySensor(BinarySensorEntity):
     """Whether the agent's event stream is up.
 
     Distinguishes "the agent/computer is unreachable" (this is off) from "a
@@ -32,7 +32,7 @@ class AgentConnectedSensor(BinarySensorEntity):
     """
 
     _attr_has_entity_name = True
-    _attr_translation_key = "agent_connected"
+    _attr_translation_key = "agent_connectivity"
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_should_poll = False
@@ -41,6 +41,8 @@ class AgentConnectedSensor(BinarySensorEntity):
         """Initialize."""
         self._runtime = runtime
         agent_id = runtime.info["agent_id"]
+        # Kept from the sensor's original name: changing a unique_id orphans the
+        # existing registry entry and creates a new entity.
         self._attr_unique_id = f"{agent_id}_connected"
         self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, agent_id)})
 

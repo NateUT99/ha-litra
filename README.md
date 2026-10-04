@@ -177,9 +177,9 @@ actions:
 
 Ideas for extending it:
 
-- **Skip the preset when the light can't respond.** Check the agent's *Connected* sensor
-  and the light's availability before applying the preset. *Connected* off means the agent
-  is unreachable; the light `unavailable` while *Connected* is on means the Litra is
+- **Skip the preset when the light can't respond.** Check the agent's *Connectivity* sensor
+  and the light's availability before applying the preset. *Connectivity* off means the agent
+  is unreachable; the light `unavailable` while *Connectivity* is on means the Litra is
   unplugged.
 - **Tolerate longer pauses.** If you step away with the camera off but the call still
   connected, wait for the Mac's *Audio Input In Use* sensor to go off before turning the
@@ -187,7 +187,7 @@ Ideas for extending it:
 
 ## Example: notify when the agent goes offline
 
-The agent device has a *Connected* sensor. It turns off when Home Assistant loses the
+The agent device has a *Connectivity* sensor. It turns off when Home Assistant loses the
 agent's event stream: the agent stopped, the computer is asleep or off, or the firewall
 is blocking it after an upgrade. This automation sends a notification to the Mac through
 the Companion App after two minutes offline, which rides out a restart. Replace the two
@@ -204,7 +204,7 @@ mode: single
 triggers:
   - alias: Agent disconnected for two minutes
     trigger: state
-    entity_id: binary_sensor.litra_agent_connected
+    entity_id: binary_sensor.litra_agent_connectivity
     from: "on"
     to: "off"
     # Long enough to ride out an agent restart or a brief network blip.

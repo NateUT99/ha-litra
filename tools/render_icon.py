@@ -1,7 +1,8 @@
 """Render the integration icon (original artwork; not Logitech's logo).
 
-Drawn at 2048 px and downsampled for anti-aliasing. Outputs the sizes the
-home-assistant/brands repo expects: icon.png (256) and icon@2x.png (512).
+Drawn at 2048 px and downsampled for anti-aliasing. Writes icon.png (256) and
+icon@2x.png (512) into the integration's brand/ folder, which Home Assistant
+serves directly for custom integrations.
 """
 
 from pathlib import Path
@@ -9,7 +10,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 
 N = 2048
-OUT = Path(__file__).parent
+OUT = Path(__file__).parent.parent / "custom_components" / "litra" / "brand"
 
 
 def glow(box: tuple[int, int, int, int], color: tuple[int, int, int], alpha: int, radius: int):

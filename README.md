@@ -88,9 +88,13 @@ Logs: `~/Library/Logs/litra-agent.log`. Restart: `launchctl kickstart -k gui/$(i
 
 ## Install the integration
 
-Copy `custom_components/litra` to `/config/custom_components/litra` on your HA host and
-restart Home Assistant. (Once this repository is public, it can be added to HACS as a
-custom repository instead.)
+With [HACS](https://hacs.xyz/): **HACS → ⋮ → Custom repositories**, add
+`https://github.com/NateUT99/ha-litra` with type **Integration**, then download
+**Logitech Litra** and restart Home Assistant. This repository isn't in the HACS default
+store, so it has to be added this way.
+
+Without HACS: copy `custom_components/litra` to `/config/custom_components/litra` on your
+HA host and restart Home Assistant.
 
 The agent should then show up under **Settings → Devices & services → Discovered**. If
 not, add **Logitech Litra** manually with the Mac's hostname and port `47810`. Check that

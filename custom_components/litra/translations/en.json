@@ -1,0 +1,51 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Connect to litra-agent",
+        "description": "Enter the address of the computer running litra-agent.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "pair": {
+        "title": "Pair with litra-agent",
+        "description": "Run `litra-agent pair` on the computer at {host}. Check that the fingerprint it prints matches this one exactly, then enter its token.\n\n`{fingerprint}`\n\nIf the fingerprints differ, stop: something else is answering at this address.",
+        "data": {
+          "token": "Token"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-pair with litra-agent",
+        "description": "The agent rejected Home Assistant's credentials. Run `litra-agent pair` on the agent's computer and enter the new token.\n\nCertificate fingerprint ({status}):\n\n`{fingerprint}`\n\nConfirm it matches the `litra-agent pair` output before continuing.",
+        "data": {
+          "token": "Token"
+        }
+      },
+      "reconfigure": {
+        "title": "Change litra-agent address",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach litra-agent at that address.",
+      "invalid_auth": "The agent rejected the token.",
+      "fingerprint_changed": "The agent's certificate changed during setup. Start again.",
+      "unsupported_version": "This litra-agent speaks an API version this integration doesn't support. Update one or the other.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This litra-agent is already configured.",
+      "cannot_connect": "Could not reach litra-agent.",
+      "invalid_discovery": "The discovered agent didn't advertise an ID.",
+      "reauth_successful": "Re-paired successfully.",
+      "reconfigure_successful": "Address updated.",
+      "wrong_agent": "A different litra-agent answered at that address."
+    }
+  }
+}

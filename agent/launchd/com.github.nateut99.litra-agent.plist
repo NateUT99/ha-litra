@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- User LaunchAgent: runs in the logged-in user's session, which is what grants
+     USB HID access to the Litra. install.sh substitutes __HOME__. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.github.nateut99.litra-agent</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__HOME__/.local/bin/litra-agent</string>
+    <string>serve</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <!-- Restart on any exit, including the HID watchdog's deliberate exit. -->
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/litra-agent.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>NO_COLOR</key>
+    <string>1</string>
+  </dict>
+</dict>
+</plist>

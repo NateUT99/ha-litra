@@ -1,0 +1,19 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "RUF", "UP"]
+# HA's entity model sets _attr_* class attributes, including sets.
+ignore = ["RUF012"]
+
+[tool.ruff.lint.isort]
+# Matches Home Assistant core's import style.
+force-sort-within-sections = true
+combine-as-imports = true
+known-first-party = ["custom_components", "homeassistant"]

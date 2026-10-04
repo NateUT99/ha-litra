@@ -1,6 +1,6 @@
 # Logitech Litra for Home Assistant
 
-Control USB Logitech Litra lights (Glow, Beam, Beam LX) from Home Assistant.
+Control USB Logitech Litra lights from Home Assistant (tested on the Litra Glow; see [Supported devices](#supported-devices)).
 
 The lights only speak USB HID, so this comes in two parts:
 

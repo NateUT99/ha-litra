@@ -51,7 +51,7 @@
   "entity": {
     "binary_sensor": {
       "agent_connected": {
-        "name": "Agent connected"
+        "name": "Connected"
       }
     }
   }

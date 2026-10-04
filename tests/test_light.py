@@ -26,7 +26,7 @@ from homeassistant.helpers import device_registry as dr
 from .conftest import GLOW, FakeClient
 
 ENTITY = "light.litra_glow"
-AGENT_CONNECTED = "binary_sensor.litra_agent_mac_mini_agent_connected"
+AGENT_CONNECTED = "binary_sensor.litra_agent_mac_mini_connected"
 
 
 async def _setup(hass: HomeAssistant, entry: MockConfigEntry) -> None:

@@ -20,6 +20,18 @@ State is pushed, not polled by HA. The agent reads each light about once a secon
 locally and pushes only changes, so presses of the light's own buttons and USB
 unplug/replug show up in HA within about a second.
 
+## Project status
+
+This is a personal hobby project, built for my own desk and shared in case it's useful to
+someone else. It was written with heavy use of AI-assisted coding. I run it every day, and
+it has tests and CI, but read and test it yourself before you rely on it.
+
+Issues and pull requests are welcome. There's no support commitment, though: replies may
+be slow, and some may not come at all.
+
+Not affiliated with or endorsed by Logitech. Logitech and Litra are trademarks of
+Logitech.
+
 ## Supported devices
 
 Device support comes from the [`litra`](https://github.com/timrogers/litra-rs) crate.

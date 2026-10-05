@@ -229,6 +229,15 @@ actions:
         `launchctl print gui/$(id -u)/com.github.nateut99.litra-agent`.
 ```
 
+## Known issues
+
+- **HACS shows "icon not available" for this integration.** The icon ships inside the
+  integration (`custom_components/litra/brand/`), which Home Assistant 2026.3+ displays on
+  its own screens. HACS still loads integration icons only from the Home Assistant brands
+  website, so its screens show a placeholder. This is a HACS bug, tracked in
+  [hacs/integration#5223](https://github.com/hacs/integration/issues/5223); nothing in
+  this integration needs fixing.
+
 ## Acknowledgments and licensing
 
 The agent talks to the hardware through [`litra`](https://github.com/timrogers/litra-rs)

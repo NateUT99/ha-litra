@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /agent
+    schedule:
+      interval: monthly
+    groups:
+      # One PR per month for routine bumps; security updates still come separately.
+      agent-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

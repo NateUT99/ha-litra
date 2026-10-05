@@ -84,6 +84,10 @@ If the macOS application firewall is on, `install.sh` adds an allow rule with `s
 Each rebuild gets a new ad-hoc code signature, so re-run `install.sh` (not just
 `cargo build`) after upgrading.
 
+The agent runs only while you're logged in. A LaunchAgent lives in your login session,
+which is what gives it USB access. After a restart, it's offline until you log in. Turn
+on automatic login if the light needs to work without anyone logging in first.
+
 Logs: `~/Library/Logs/litra-agent.log`. Restart: `launchctl kickstart -k gui/$(id -u)/com.github.nateut99.litra-agent`.
 
 ## Install the integration

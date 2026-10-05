@@ -31,6 +31,19 @@ from .const import API_VERSION, CONF_FINGERPRINT, DEFAULT_PORT, DOMAIN
 TOKEN_SCHEMA = vol.Schema({vol.Required(CONF_TOKEN): str})
 
 
+def _usable_host(discovery_info: ZeroconfServiceInfo) -> str | None:
+    """Pick the address to store from a discovery: IPv4 first, then a routable IPv6.
+
+    Link-local IPv6 (fe80::/10) is never usable as a stored host: it needs an
+    interface scope that isn't valid from another machine.
+    """
+    addresses = discovery_info.ip_addresses or [discovery_info.ip_address]
+    for address in sorted(addresses, key=lambda a: a.version):
+        if address.version == 4 or not address.is_link_local:
+            return str(address)
+    return None
+
+
 class LitraConfigFlow(ConfigFlow, domain=DOMAIN):
     """Pair with a litra-agent."""
 
@@ -98,11 +111,13 @@ class LitraConfigFlow(ConfigFlow, domain=DOMAIN):
         if not (agent_id := discovery_info.properties.get("id")):
             return self.async_abort(reason="invalid_discovery")
         await self.async_set_unique_id(agent_id)
+        if (host := _usable_host(discovery_info)) is None:
+            return self.async_abort(reason="no_usable_address")
         # Follow the agent if its address changed; credentials stay valid.
         self._abort_if_unique_id_configured(
-            updates={CONF_HOST: discovery_info.host, CONF_PORT: discovery_info.port}
+            updates={CONF_HOST: host, CONF_PORT: discovery_info.port}
         )
-        self._host = discovery_info.host
+        self._host = host
         self._port = discovery_info.port or DEFAULT_PORT
         try:
             await self._async_fetch_fingerprint()

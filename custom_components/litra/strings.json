@@ -45,7 +45,8 @@
       "invalid_discovery": "The discovered agent didn't advertise an ID.",
       "reauth_successful": "Re-paired successfully.",
       "reconfigure_successful": "Address updated.",
-      "wrong_agent": "A different litra-agent answered at that address."
+      "wrong_agent": "A different litra-agent answered at that address.",
+      "no_usable_address": "The discovered agent only advertised link-local addresses. Add it manually by hostname."
     }
   },
   "entity": {

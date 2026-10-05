@@ -33,8 +33,9 @@ struct Cli {
 enum Command {
     /// Run the API server (what the LaunchAgent runs).
     Serve {
-        /// Address to listen on.
-        #[arg(long, default_value = "0.0.0.0:47810")]
+        /// Address to listen on. The default `[::]` accepts both IPv6 and IPv4
+        /// (macOS dual-stack), so every address mDNS advertises is reachable.
+        #[arg(long, default_value = "[::]:47810")]
         listen: SocketAddr,
         /// How often to poll attached lights for out-of-band changes, in milliseconds.
         #[arg(long, default_value_t = 1000)]

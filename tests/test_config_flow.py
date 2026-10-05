@@ -178,3 +178,63 @@ async def test_reconfigure(
     assert config_entry.data[CONF_FINGERPRINT] == FINGERPRINT
     await hass.async_block_till_done()
     await hass.config_entries.async_unload(config_entry.entry_id)
+
+
+def _discovery(*addresses: str) -> ZeroconfServiceInfo:
+    ips = [ip_address(a) for a in addresses]
+    return ZeroconfServiceInfo(
+        ip_address=ips[0],
+        ip_addresses=ips,
+        hostname=DISCOVERY.hostname,
+        name=DISCOVERY.name,
+        port=47810,
+        type=DISCOVERY.type,
+        properties=DISCOVERY.properties,
+    )
+
+
+async def test_zeroconf_prefers_ipv4(hass: HomeAssistant, fake_client: FakeClient) -> None:
+    """IPv4 wins even when IPv6 addresses are listed first."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": SOURCE_ZEROCONF},
+        data=_discovery("fe80::1", "fd00::20", "192.0.2.20"),
+    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_TOKEN: TOKEN})
+    assert result["data"][CONF_HOST] == "192.0.2.20"
+
+
+async def test_zeroconf_ipv6_only_skips_link_local(
+    hass: HomeAssistant, fake_client: FakeClient
+) -> None:
+    """With no IPv4, a routable IPv6 address is used, never link-local."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": SOURCE_ZEROCONF},
+        data=_discovery("fe80::1", "fe80::5a:65f6:e34f:4712", "fd00::20"),
+    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_TOKEN: TOKEN})
+    assert result["data"][CONF_HOST] == "fd00::20"
+
+
+async def test_zeroconf_link_local_only_aborts(
+    hass: HomeAssistant, fake_client: FakeClient
+) -> None:
+    """Only link-local addresses: nothing usable to store."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_ZEROCONF}, data=_discovery("fe80::1", "fe80::2")
+    )
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "no_usable_address"
+
+
+async def test_rediscovery_never_stores_link_local(
+    hass: HomeAssistant, fake_client: FakeClient, config_entry: MockConfigEntry
+) -> None:
+    """A configured agent rediscovered with only link-local addresses keeps its host."""
+    config_entry.add_to_hass(hass)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_ZEROCONF}, data=_discovery("fe80::1")
+    )
+    assert result["type"] is FlowResultType.ABORT
+    assert config_entry.data[CONF_HOST] == "192.0.2.20"
